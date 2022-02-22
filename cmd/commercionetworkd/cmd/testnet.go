@@ -32,6 +32,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -166,7 +168,6 @@ func InitTestnet(
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
 		nodeDir := filepath.Join(outputDir, nodeDirName, nodeDaemonHome)
-		//clientDir := filepath.Join(outputDir, nodeDirName, nodeCLIHome)
 		gentxsDir := filepath.Join(outputDir, "gentxs")
 
 		nodeConfig.SetRoot(nodeDir)
@@ -257,8 +258,6 @@ func InitTestnet(
 			return err
 		}
 
-		//tx := auth.NewStdTx([]sdk.Msg{msg}, auth.StdFee{}, []auth.StdSignature{}, memo)
-		//txBldr := auth.NewTxBuilderFromCLI(inBuf).WithChainID(chainID).WithMemo(memo).WithKeybase(kb)
 		txBuilder.SetMemo(memo)
 
 		txFactory := tx.Factory{}
@@ -283,8 +282,6 @@ func InitTestnet(
 			return err
 		}
 
-		// TODO: Rename config file to server.toml as it's not particular to Gaia
-		// (REF: https://github.com/cosmos/cosmos-sdk/issues/4125).
 		cndConfigFilePath := filepath.Join(nodeDir, "config/app.toml")
 		srvconfig.WriteConfigFile(cndConfigFilePath, cndConfig)
 	}
@@ -293,18 +290,11 @@ func InitTestnet(
 		return err
 	}
 
-	/*if err := initGenFiles(cdc, mbm, chainID, genAccounts, genFiles, numValidators); err != nil {
-		return err
-	}*/
-
 	err := collectGenFiles(
 		clientCtx, nodeConfig, chainID, nodeIDs, valPubKeys, numValidators,
 		outputDir, nodeDirPrefix, nodeDaemonHome, genBalIterator,
 	)
-	/*err := collectGenFiles(
-		cdc, config, chainID, monikers, nodeIDs, valPubKeys, numValidators,
-		outputDir, nodeDirPrefix, nodeDaemonHome, genBalIterator,
-	)*/
+
 	if err != nil {
 		return err
 	}
@@ -319,11 +309,6 @@ func initGenFiles(
 	genFiles []string, numValidators int,
 ) error {
 
-	/*func initGenFiles(
-		clientCtx client.Context, mbm module.BasicManager, chainID string,
-		genAccounts []authexported.GenesisAccount,
-		genFiles []string, numValidators int,
-	) error {*/
 	cdc := clientCtx.JSONMarshaler
 
 	appGenState := mbm.DefaultGenesis(cdc)
@@ -338,8 +323,24 @@ func initGenFiles(
 	authGenState.Accounts = accounts
 	appGenState[authtypes.ModuleName] = cdc.MustMarshalJSON(&authGenState)
 
+	// setup staking denom
+	var stakingState stakingtypes.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[stakingtypes.ModuleName], &stakingState)
+	stakingState.Params.BondDenom = app.DefaultBondDenom
+	cdc.MustUnmarshalJSON(appGenState[stakingtypes.ModuleName], &stakingState)
+
+	// setup crisis constant fee denom
+	var crisisState crisistypes.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisState)
+	crisisState.ConstantFee.Denom = app.DefaultBondDenom
+	cdc.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisState)
+
+	var govState govtypes.GenesisState
+	cdc.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govState)
+	govState.DepositParams.MinDeposit[0].Denom = app.DefaultBondDenom
+	cdc.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govState)
+
 	// cnd set-genesis-government-address
-	// cnd set-genesis-tumbler-address
 	var governmentState governmentTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[governmentTypes.ModuleName], &authGenState)
 
@@ -392,13 +393,6 @@ func collectGenFiles(
 	nodeIDs []string, valPubKeys []cryptotypes.PubKey, numValidators int,
 	outputDir, nodeDirPrefix, nodeDaemonHome string, genBalIterator banktypes.GenesisBalancesIterator,
 ) error {
-
-	/*func collectGenFiles(
-		cdc *codec.Codec, config *tmconfig.Config, chainID string,
-		monikers, nodeIDs []string, valPubKeys []crypto.PubKey,
-		numValidators int, outputDir, nodeDirPrefix, nodeDaemonHome string,
-		genBalIterator genutiltypes.GenesisAccountsIterator,
-	) error {*/
 
 	var appState json.RawMessage
 	genTime := tmtime.Now()
