@@ -4,12 +4,30 @@ RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y install curl jq file tzdata
 
-VOLUME /cnd
-WORKDIR /cnd
+# Start from the latest golang base image
+FROM golang:latest as builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy go mod and sum files
+COPY ./go.mod .
+COPY ./go.sum .
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+# Copy the source from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the Go app
+RUN make build-linux
+
+#VOLUME /cnd
+#WORKDIR /cnd
 EXPOSE 26656 26657
 ENTRYPOINT ["/usr/bin/wrapper.sh"]
 CMD ["start"]
 STOPSIGNAL SIGTERM
 ENV TZ America/New_York
 
-COPY wrapper.sh /usr/bin/wrapper.sh
+COPY ./contrib/localnet/cndnode/wrapper.sh /usr/bin/wrapper.sh

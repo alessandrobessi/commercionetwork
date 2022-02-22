@@ -63,6 +63,8 @@ build-darwin: go.sum generate
 build-linux: go.sum generate
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
+build-linux-docker:
+	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-local-linux: go.sum generate
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
@@ -144,8 +146,12 @@ build-docker-cndode:
 	$(MAKE) -C contrib/localnet
 
 
-localnet-start: localnet-stop build-local-linux
-	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
+#localnet-start: localnet-stop build-local-linux
+#	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
+#	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
+#	docker-compose up
+localnet-start: localnet-stop
+	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -e BINARY=/app/build/Linux-AMD64/commercionetworkd -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up
 
