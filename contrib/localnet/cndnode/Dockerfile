@@ -1,8 +1,8 @@
-FROM ubuntu:18.04
+#FROM ubuntu:18.04
 
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get -y install curl jq file tzdata
+#RUN apt-get update && \
+#    apt-get -y upgrade && \
+#    apt-get -y install curl jq file tzdata
 
 # Start from the latest golang base image
 FROM golang:latest as builder
@@ -20,7 +20,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN make build-linux
+RUN make build
 
 #VOLUME /cnd
 #WORKDIR /cnd

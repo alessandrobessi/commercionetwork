@@ -9,7 +9,7 @@ services:
     environment:
       - ID=0
       - LOG=${LOG:-cnd.log}
-      - BINARY=/app/build/Linux-AMD64/commercionetworkd
+      - BINARY=/app/build/commercionetworkd
     volumes:
       - ./build:/cnd:Z
     networks:
@@ -24,7 +24,7 @@ services:
     environment:
       - ID=1
       - LOG=${LOG:-cnd.log}
-      - BINARY=/app/build/Linux-AMD64/commercionetworkd
+      - BINARY=/app/build/commercionetworkd
       - TZ=Asia/Colombo
     volumes:
       - ./build:/cnd:Z
@@ -38,7 +38,7 @@ services:
     environment:
       - ID=2
       - LOG=${LOG:-cnd.log}
-      - BINARY=/app/build/Linux-AMD64/commercionetworkd
+      - BINARY=/app/build/commercionetworkd
     ports:
       - "26661-26662:26656-26657"
     volumes:
@@ -53,7 +53,7 @@ services:
     environment:
       - ID=3
       - LOG=${LOG:-cnd.log}
-      - BINARY=/app/build/Linux-AMD64/commercionetworkd
+      - BINARY=/app/build/commercionetworkd
     ports:
       - "26663-26664:26656-26657"
     volumes:
