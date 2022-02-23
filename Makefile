@@ -122,7 +122,6 @@ build: go.sum
 	@echo "--> Building commercionetwork"
 	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-
 #go.sum: go.mod
 #	@echo "--> Ensure dependencies have not been modified"
 #	GO111MODULE=on go mod verify
@@ -164,5 +163,13 @@ localnet-stop:
 
 clean:
 	rm -rf build/
+
+build-image-no-libraries:
+	docker build -t commercionetwork/cndnode -f contrib/localnet/cndnode/Dockerfile .
+
+build-image-with-libraries:
+	docker build -t commercionetwork/cndnodelib -f DockerfileLibraries .
+	docker build -t commercionetwork/cndnode -f contrib/localnet/cndnode/Dockerfile .
+
 
 .PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset
