@@ -10,8 +10,8 @@ COPY . .
 # Build the Go app
 RUN make build
 
-#VOLUME /cnd
-#WORKDIR /cnd
+VOLUME /cnd
+WORKDIR /cnd
 EXPOSE 26656 26657
 ENTRYPOINT ["/usr/bin/wrapper.sh"]
 CMD ["start"]

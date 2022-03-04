@@ -6,6 +6,7 @@ services:
     image: "commercionetwork/cndnode"
     ports:
       - "26656-26657:26656-26657"
+      - "1317:1317"
     environment:
       - ID=0
       - LOG=${LOG:-cnd.log}
@@ -62,18 +63,6 @@ services:
       localnet:
         ipv4_address: 192.168.10.5
 
-  cnclinode0:
-    container_name: cnclinode0
-    image: "commercionetwork/cnclirest"
-    environment:
-      - ID=0
-      - LOGCNCLI=${LOG:-cnd.cli.log}
-    ports:
-      - "1317:1317"
-    volumes:
-      - ./build:/cnd:Z
-    networks:
-      - localnet
 
   proxy-nginx:
     container_name:   proxy-nginx
