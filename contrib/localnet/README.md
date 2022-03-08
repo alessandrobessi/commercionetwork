@@ -21,12 +21,6 @@ To send in backgroud the stack use
 make build-image-libraries-cached localnet-start >/dev/null 2>&1 &
 ```
 
-**NB**: becouse the compilation could be very heavy the production of the swagger documentation is disabled by default. To generate the swagger production use
-
-```bash
-make GENERATE=1 build-image-libraries-cached localnet-start
-```
-
 
 To stop stack use `ctrl + c` or
 

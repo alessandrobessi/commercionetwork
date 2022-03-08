@@ -57,19 +57,19 @@ BUILD_FLAGS := -ldflags '$(ldflags)'
 
 all: install
 
-build-darwin: go.sum generate
+build-darwin: go.sum
 	env GOOS=darwin GOARCH=amd64 go build -mod=readonly -o ./build/Darwin-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-linux: go.sum generate
+build-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-linux-docker:
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/Linux-AMD64/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-local-linux: go.sum generate
+build-local-linux: go.sum
 	env GOOS=linux GOARCH=amd64 go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build-windows: go.sum generate
+build-windows: go.sum
 	env GOOS=windows GOARCH=amd64 go build -mod=readonly -o ./build/Windows-AMD64/commercionetworkd.exe $(BUILD_FLAGS) ./cmd/commercionetworkd
 
 build-all: go.sum
@@ -104,18 +104,13 @@ lint:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
 
-generate:
-ifeq ($(GENERATE),1)
-	GOFLAGS=-mod=mod go generate ./...
-endif
-
 .PHONY: git-hooks
 
 install: go.sum
 	@echo "--> Installing commercionetwork"
 	@go install -mod=readonly $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build: go.sum generate
+build: go.sum
 	@echo "--> Building commercionetwork"
 	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
@@ -157,11 +152,11 @@ clean:
 	rm -rf build/
 
 build-image-libraries-cached:
-	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile --build-arg generate=$(GENERATE) .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
 build-image-to-donwload-libraries:
-	docker build -t commercionetwork/libraries -f DockerfileLibraries --build-arg generate=$(GENERATE) .
-	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile --build-arg generate=$(GENERATE) .
+	docker build -t commercionetwork/libraries -f DockerfileLibraries .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
 
 .PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset
