@@ -3,16 +3,14 @@
 ##
 ## Input parameters
 ##
-#BINARY=/cnd/${BINARY:-commercionetworkd}
-BINARY=${BINARY}
 ID=${ID:-0}
 LOG=${LOG:-cnd.log}
 
 ##
 ## Assert linux binary
 ##
-if ! [ -f "${BINARY}" ]; then
-	echo "The binary $(basename "${BINARY}") cannot be found. Please add the binary to the shared folder. Please use the BINARY environment variable if the name of the binary is not 'cnd' E.g.: -e BINARY=cnd_my_test_version"
+if ! [ -f "/app/build/commercionetworkd" ]; then
+	echo "The binary /app/build/commercionetworkd cannot be found. Please add the binary to the shared folder."
 	exit 1
 fi
 
@@ -30,9 +28,9 @@ export CNDHOME="/commercionetwork/node${ID}/commercionetwork"
 #sed -i 's/main:info,state:info,\*:error/info/g' /app/build/node${ID}/cnd/config/config.toml
 
 if [ -d "$(dirname "${CNDHOME}"/"${LOG}")" ]; then
-  "${BINARY}" --home "${CNDHOME}" "$@" | tee "${CNDHOME}/${LOG}"
+  "/app/build/commercionetworkd" --home "${CNDHOME}" "$@" | tee "${CNDHOME}/${LOG}"
 else
-  "${BINARY}" --home "${CNDHOME}" "$@"
+  "/app/build/commercionetworkd" --home "${CNDHOME}" "$@"
 fi
 
 

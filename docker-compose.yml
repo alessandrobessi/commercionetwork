@@ -10,7 +10,6 @@ services:
     environment:
       - ID=0
       - LOG=${LOG:-commercionetwork.log}
-      - BINARY=/app/build/commercionetworkd
     volumes:
       - ./build:/commercionetwork:Z
     networks:
@@ -25,7 +24,6 @@ services:
     environment:
       - ID=1
       - LOG=${LOG:-commercionetwork.log}
-      - BINARY=/app/build/commercionetworkd
       - TZ=Asia/Colombo
     volumes:
       - ./build:/commercionetwork:Z
@@ -39,7 +37,6 @@ services:
     environment:
       - ID=2
       - LOG=${LOG:-commercionetwork.log}
-      - BINARY=/app/build/commercionetworkd
     ports:
       - "26661-26662:26656-26657"
     volumes:
@@ -54,7 +51,6 @@ services:
     environment:
       - ID=3
       - LOG=${LOG:-commercionetwork.log}
-      - BINARY=/app/build/commercionetworkd
     ports:
       - "26663-26664:26656-26657"
     volumes:

@@ -143,9 +143,10 @@ test:
 #	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 #	docker-compose up
 localnet-start: localnet-stop
-	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -e BINARY=/app/build/commercionetworkd -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
+	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up
+# -e BINARY=/app/build/commercionetworkd
 
 localnet-reset: localnet-stop $(TARGET_BUILD)
 	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/cnd; done
