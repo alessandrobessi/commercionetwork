@@ -25,7 +25,7 @@ fi
 ##
 ## Run binary with all parameters
 ##
-export CNDHOME="/commercionetwork/node${ID}/cnd"
+export CNDHOME="/commercionetwork/node${ID}/commercionetwork"
 #export CNDHOME="/app/build/node${ID}/cnd"
 #sed -i 's/main:info,state:info,\*:error/info/g' /app/build/node${ID}/cnd/config/config.toml
 

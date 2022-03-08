@@ -106,7 +106,7 @@ Example:
 		"Directory to store initialization data for the testnet")
 	cmd.Flags().String(flagNodeDirPrefix, "node",
 		"Prefix the directory name for each node with (node results in node0, node1, ...)")
-	cmd.Flags().String(flagNodeDaemonHome, "cnd",
+	cmd.Flags().String(flagNodeDaemonHome, "commercionetwork",
 		"Home directory of the node's daemon configuration")
 	cmd.Flags().String(flagNodeCLIHome, "cncli",
 		"Home directory of the node's cli configuration")

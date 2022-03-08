@@ -104,8 +104,6 @@ lint:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
 
-
-
 generate:
 ifeq ($(GENERATE),1)
 	go generate ./...
@@ -140,11 +138,6 @@ test:
 ########################################
 ### Docker
 
-
-build-docker-cndode:
-	$(MAKE) -C contrib/localnet
-
-
 #localnet-start: localnet-stop build-local-linux
 #	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
 #	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
@@ -157,7 +150,6 @@ localnet-start: localnet-stop
 localnet-reset: localnet-stop $(TARGET_BUILD)
 	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/cnd; done
 
-
 localnet-stop:
 	docker-compose down
 
@@ -165,11 +157,11 @@ clean:
 	rm -rf build/
 
 build-image-libraries-cached:
-	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/cndnode/Dockerfile .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
 build-image-to-donwload-libraries:
 	docker build -t commercionetwork/libraries -f DockerfileLibraries .
-	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/cndnode/Dockerfile .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
 
 .PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset

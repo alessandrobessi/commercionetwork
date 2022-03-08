@@ -18,4 +18,4 @@ CMD ["start"]
 STOPSIGNAL SIGTERM
 ENV TZ America/New_York
 
-COPY ./contrib/localnet/cndnode/wrapper.sh /usr/bin/wrapper.sh
+COPY ./contrib/localnet/commercionetworknode/wrapper.sh /usr/bin/wrapper.sh
