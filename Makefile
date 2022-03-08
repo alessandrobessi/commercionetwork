@@ -150,7 +150,7 @@ build-docker-cndode:
 #	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 #	docker-compose up
 localnet-start: localnet-stop
-	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -e BINARY=/app/build/commercionetworkd -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
+	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -e BINARY=/app/build/commercionetworkd -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
 	docker-compose up
 
@@ -164,12 +164,12 @@ localnet-stop:
 clean:
 	rm -rf build/
 
-build-image-no-libraries:
-	docker build -t commercionetwork/cndnode -f contrib/localnet/cndnode/Dockerfile .
+build-image-libraries-cached:
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/cndnode/Dockerfile .
 
-build-image-with-libraries:
-	docker build -t commercionetwork/cndnodelib -f DockerfileLibraries .
-	docker build -t commercionetwork/cndnode -f contrib/localnet/cndnode/Dockerfile .
+build-image-to-donwload-libraries:
+	docker build -t commercionetwork/libraries -f DockerfileLibraries .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/cndnode/Dockerfile .
 
 
 .PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset

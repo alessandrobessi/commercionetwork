@@ -1,64 +1,64 @@
 version: '3'
 
 services:
-  cndnode0:
-    container_name: cndnode0
-    image: "commercionetwork/cndnode"
+  commercionetworknode0:
+    container_name: commercionetworknode0
+    image: "commercionetwork/commercionetworknode"
     ports:
       - "26656-26657:26656-26657"
       - "1317:1317"
     environment:
       - ID=0
-      - LOG=${LOG:-cnd.log}
+      - LOG=${LOG:-commercionetwork.log}
       - BINARY=/app/build/commercionetworkd
     volumes:
-      - ./build:/cnd:Z
+      - ./build:/commercionetwork:Z
     networks:
       localnet:
         ipv4_address: 192.168.10.2
 
-  cndnode1:
-    container_name: cndnode1
-    image: "commercionetwork/cndnode"
+  commercionetworknode1:
+    container_name: commercionetworknode1
+    image: "commercionetwork/commercionetworknode"
     ports:
       - "26659-26660:26656-26657"
     environment:
       - ID=1
-      - LOG=${LOG:-cnd.log}
+      - LOG=${LOG:-commercionetwork.log}
       - BINARY=/app/build/commercionetworkd
       - TZ=Asia/Colombo
     volumes:
-      - ./build:/cnd:Z
+      - ./build:/commercionetwork:Z
     networks:
       localnet:
         ipv4_address: 192.168.10.3
 
-  cndnode2:
-    container_name: cndnode2
-    image: "commercionetwork/cndnode"
+  commercionetworknode2:
+    container_name: commercionetworknode2
+    image: "commercionetwork/commercionetworknode"
     environment:
       - ID=2
-      - LOG=${LOG:-cnd.log}
+      - LOG=${LOG:-commercionetwork.log}
       - BINARY=/app/build/commercionetworkd
     ports:
       - "26661-26662:26656-26657"
     volumes:
-      - ./build:/cnd:Z
+      - ./build:/commercionetwork:Z
     networks:
       localnet:
         ipv4_address: 192.168.10.4
 
-  cndnode3:
-    container_name: cndnode3
-    image: "commercionetwork/cndnode"
+  commercionetworknode3:
+    container_name: commercionetworknode3
+    image: "commercionetwork/commercionetworknode"
     environment:
       - ID=3
-      - LOG=${LOG:-cnd.log}
+      - LOG=${LOG:-commercionetwork.log}
       - BINARY=/app/build/commercionetworkd
     ports:
       - "26663-26664:26656-26657"
     volumes:
-      - ./build:/cnd:Z
+      - ./build:/commercionetwork:Z
     networks:
       localnet:
         ipv4_address: 192.168.10.5

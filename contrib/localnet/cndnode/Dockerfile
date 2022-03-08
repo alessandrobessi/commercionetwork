@@ -1,5 +1,5 @@
 #FROM golang:latest 
-FROM commercionetwork/cndnodelib
+FROM commercionetwork/libraries
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -10,8 +10,8 @@ COPY . .
 # Build the Go app
 RUN make build
 
-VOLUME /cnd
-WORKDIR /cnd
+VOLUME /commercionetwork
+WORKDIR /commercionetwork
 EXPOSE 26656 26657
 ENTRYPOINT ["/usr/bin/wrapper.sh"]
 CMD ["start"]
