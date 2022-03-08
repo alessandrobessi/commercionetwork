@@ -1,6 +1,8 @@
 #FROM golang:latest 
 FROM commercionetwork/libraries
 
+ARG generate
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
@@ -8,7 +10,7 @@ WORKDIR /app
 COPY . .
 
 # Build the Go app
-RUN make build
+RUN make build GENERATE=$generate
 
 VOLUME /commercionetwork
 WORKDIR /commercionetwork

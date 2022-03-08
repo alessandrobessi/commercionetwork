@@ -3,6 +3,8 @@
 # Start from the latest golang base image
 FROM golang:latest
 
+ARG generate
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
@@ -10,7 +12,7 @@ WORKDIR /app
 COPY . .
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN make build
+RUN make build GENERATE=$generate
 
 RUN rm -R /app
 

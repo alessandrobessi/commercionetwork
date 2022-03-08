@@ -1,22 +1,30 @@
 # Commercio.network - Using localnet full stack
 
 It is possible to test the blockchain and its functionality through the use of a complete docker stack including 4 nodes + endpoints for lcd + rpc with websocket.    
-From root project folder execute the below commands
+From root project folder execute the below commands.
 
+If it is the first time that you build the docker images:
 ```bash
-make build-docker-cndode localnet-start
+make build-image-to-donwload-libraries localnet-start
 ```
+
+If you have already built the project once, use:
+```bash
+make build-image-libraries-cached localnet-start
+```
+
+In particular, build-image-to-donwload-libraries, build two docker images, one containeining the libraries for the project and one with the project built inside, the second one start building from the first permitting to avoid the donwloading of all the dependencies each time.
 
 To send in backgroud the stack use 
 
 ```bash
-make build-docker-cndode localnet-start >/dev/null 2>&1 &
+make build-image-libraries-cached localnet-start >/dev/null 2>&1 &
 ```
 
-**NB**: the compilation could be very heavy because of the production of the swagger documentation. To avoid swagger production use
+**NB**: becouse the compilation could be very heavy the production of the swagger documentation is disabled by default. To generate the swagger production use
 
 ```bash
-make GENERATE=0 build-docker-cndode localnet-start
+make GENERATE=1 build-image-libraries-cached localnet-start
 ```
 
 

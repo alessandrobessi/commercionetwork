@@ -106,17 +106,16 @@ lint:
 
 generate:
 ifeq ($(GENERATE),1)
-	go generate ./...
+	GOFLAGS=-mod=mod go generate ./...
 endif
 
 .PHONY: git-hooks
-
 
 install: go.sum
 	@echo "--> Installing commercionetwork"
 	@go install -mod=readonly $(BUILD_FLAGS) ./cmd/commercionetworkd
 
-build: go.sum
+build: go.sum generate
 	@echo "--> Building commercionetwork"
 	@go build -mod=readonly -o ./build/commercionetworkd $(BUILD_FLAGS) ./cmd/commercionetworkd
 
@@ -158,11 +157,11 @@ clean:
 	rm -rf build/
 
 build-image-libraries-cached:
-	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile --build-arg generate=$(GENERATE) .
 
 build-image-to-donwload-libraries:
-	docker build -t commercionetwork/libraries -f DockerfileLibraries .
-	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
+	docker build -t commercionetwork/libraries -f DockerfileLibraries --build-arg generate=$(GENERATE) .
+	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile --build-arg generate=$(GENERATE) .
 
 
 .PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset
