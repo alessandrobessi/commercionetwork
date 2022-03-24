@@ -152,7 +152,7 @@ sed -i -e "s/persistent_peers = \".*\"/persistent_peers = \"$PERSISTENT\"/g" ./b
 
 ```bash
 docker run \
-   -v /Users/marco/Sviluppo/Go/commercionetwork/build:/commercionetwork:Z \
+   -v $(pwd)/build:/commercionetwork:Z \
    -e ID=4 \
    -p 26691-26692:26656-26657 \
    -p 9191:9090 \
