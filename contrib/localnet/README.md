@@ -5,7 +5,7 @@ From root project folder execute the below commands.
 
 If it is the first time that you build the docker images:
 ```bash
-make build-image-to-donwload-libraries localnet-start
+make build-image-to-download-libraries localnet-start
 ```
 
 If you have already built the project once, use:

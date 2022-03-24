@@ -155,7 +155,7 @@ clean:
 build-image-libraries-cached:
 	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
-build-image-to-donwload-libraries:
+build-image-to-download-libraries:
 	docker build -t commercionetwork/libraries -f DockerfileLibraries .
 	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
