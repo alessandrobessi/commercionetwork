@@ -24,7 +24,7 @@ make build-image-libraries-cached localnet-start >/dev/null 2>&1 &
 or 
 
 ```bash
-make build-image-libraries-cached localnet-start-demon
+make build-image-libraries-cached localnet-start-daemon
 ```
 
 You can see logs with
@@ -113,7 +113,7 @@ Logs
 /build/node<N>/commercionetwork/commercionetwork.log
 ```
 
-## Add Node (WIP)
+## Add Node
 
 If you want add a new node you can start a new container of `commercionetworknode` with new configuration
 
@@ -169,4 +169,113 @@ You can see logs with
 
 ```bash
 docker logs node4 -f
+```
+
+
+### Make the validator node
+
+You can discover the account with a lot of tokens in the first node using
+
+```bash
+./build/commercionetworkd keys list \
+  --keyring-backend test \
+  --home ./build/node0/commercionetwork/
+```
+
+The output should be something like below
+
+```
+- name: node0
+  type: local
+  address: did:com:1fm4ktq7t2282kmgcsptgm3j7f4k58r4zswseqw
+  pubkey: did:com:pub1addwnpepqgc5jkcd0yfky2zssfl3096u6aj6xruj6wjqjnw56s4zgvtkw358sw3qmn9
+  mnemonic: ""
+  threshold: 0
+  pubkeys: []
+```
+
+Create a new wallet with
+
+```
+./build/commercionetworkd keys add wc_node4 \
+  --keyring-backend test \
+  --home ./build/node4/commercionetwork/
+```
+
+The output should be something like below
+
+```
+- name: wc_node4
+  type: local
+  address: did:com:1xnju336hjcjkgv7mk96z2sckh6y6axeglznrpl
+  pubkey: did:com:pub1addwnpepqgsgf2cq29p5k2s7dckh8yuq92wdju4smkjhjjva5wjqf4s3ansty30h8k9
+  mnemonic: ""
+  threshold: 0
+  pubkeys: []
+
+
+**Important** write this mnemonic phrase in a safe place.
+It is the only way to recover your account if you ever forget your password.
+similar copy session lens elbow bind custom leopard pyramid inspire situate feature large intact boat ensure penalty envelope sign action sentence boost rebel tower
+```
+**Save the mnemonic**
+
+Transfer a minumun amount of token to the new wallet from the first one to create the new account on chain
+
+```bash
+# did:com:1fm4ktq7t2282kmgcsptgm3j7f4k58r4zswseqw is the wallet in the first node with a lot of tokens
+# did:com:1xnju336hjcjkgv7mk96z2sckh6y6axeglznrpl is the wallet that you created before
+
+./build/commercionetworkd tx bank send \
+  did:com:1fm4ktq7t2282kmgcsptgm3j7f4k58r4zswseqw \
+  did:com:1xnju336hjcjkgv7mk96z2sckh6y6axeglznrpl \
+  20000000ucommercio \
+  --keyring-backend test \
+  --home ./build/node0/commercionetwork/ \
+  --chain-id $(jq -r '.chain_id' ./build/base_config/genesis.json) \
+  --fees 10000ucommercio \
+  -y
+```
+
+Check the balances of your wallet
+
+```bash
+./build/commercionetworkd \
+  query bank balances \
+  did:com:1xnju336hjcjkgv7mk96z2sckh6y6axeglznrpl
+```
+
+Create validator
+
+```bash
+NODENAME=node4
+CHAINID=$(jq -r '.chain_id' ./build/base_config/genesis.json)
+VALIDATOR_PUBKEY=$(./build/commercionetworkd \
+  tendermint show-validator \
+  --home ./build/node4/commercionetwork/)
+WALLET_CREATOR="did:com:1xnju336hjcjkgv7mk96z2sckh6y6axeglznrpl"
+
+./build/commercionetworkd tx staking create-validator \
+  --amount=1000000ucommercio \
+  --pubkey=$VALIDATOR_PUBKEY \
+  --moniker="$NODENAME" \
+  --chain-id="$CHAINID" \
+  --identity="" \
+  --website="" \
+  --details="" \
+  --commission-rate="0.10" \
+  --commission-max-rate="0.20" \
+  --commission-max-change-rate="0.01" \
+  --min-self-delegation="1" \
+  --from=$WALLET_CREATOR \
+  --keyring-backend test \
+  --home ./build/node4/commercionetwork/ \
+  --fees=10000ucommercio \
+  -y
+```
+
+Check if your validator is present
+
+```bash
+./build/commercionetworkd query staking validators
 ```
