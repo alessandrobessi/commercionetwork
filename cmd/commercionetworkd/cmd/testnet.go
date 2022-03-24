@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -72,7 +73,7 @@ necessary files (private validator, genesis, config, etc.).
 Note, strict routability for addresses is turned off in the config file.
 
 Example:
-	cnd testnet --v 4 --output-dir ./output --starting-ip-address 192.168.10.2
+	commercionetworkd testnet --v 4 --output-dir ./output --starting-ip-address 192.168.10.2
 	`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -273,9 +274,6 @@ func InitTestnet(
 		if err := tx.Sign(txFactory, nodeDirName, txBuilder, true); err != nil {
 			return err
 		}
-		/*if err := tx.Sign(txFactory, nodeDir, txBuilder, true); err != nil {
-			return err
-		}*/
 
 		txBz, err := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
 		if err != nil {
@@ -354,7 +352,7 @@ func initGenFiles(
 	govState.DepositParams.MinDeposit[0].Denom = app.DefaultBondDenom
 	appGenState[govtypes.ModuleName] = cdc.MustMarshalJSON(&govState)
 
-	// cnd set-genesis-government-address
+	// commercionetworkd set-genesis-government-address
 	var governmentState governmentTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[governmentTypes.ModuleName], &governmentState)
 	governmentState.GovernmentAddress = genAccounts[0].GetAddress().String()
@@ -369,13 +367,13 @@ func initGenFiles(
 	vbrState.Params.EarnRate = sdk.NewDecWithPrec(5, 2)
 	appGenState[vbrTypes.ModuleName] = cdc.MustMarshalJSON(&vbrState)
 
-	// cnd set-genesis-price ucommercio 1 100000000
+	// commercionetworkd set-genesis-price ucommercio 1 100000000
 
-	// cnd add-genesis-tsp
+	// commercionetworkd add-genesis-tsp
 	var kycState commerciokycTypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
 	kycState.TrustedServiceProviders = append(kycState.TrustedServiceProviders, genAccounts[0].GetAddress().String())
-	// cnd add-genesis-membership black
+	// commercionetworkd add-genesis-membership black
 	membership := commerciokycTypes.NewMembership("black", genAccounts[0].GetAddress(), genAccounts[0].GetAddress(), time.Now().Add(time.Hour*24*365))
 	kycState.Memberships = append(kycState.Memberships, &membership)
 	cdc.MustUnmarshalJSON(appGenState[commerciokycTypes.ModuleName], &kycState)
@@ -398,6 +396,7 @@ func initGenFiles(
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -409,7 +408,7 @@ func collectGenFiles(
 
 	var appState json.RawMessage
 	genTime := tmtime.Now()
-
+	genFile := ""
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
 		nodeDir := filepath.Join(outputDir, nodeDirName, nodeDaemonHome)
@@ -442,6 +441,47 @@ func collectGenFiles(
 		if err := genutil.ExportGenesisFileWithTime(genFile, chainID, nil, appState, genTime); err != nil {
 			return err
 		}
+	}
+	// Save genesis in common directory
+	base_config := filepath.Join(outputDir, "base_config")
+	nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, 0)
+	nodeDir := filepath.Join(outputDir, nodeDirName, nodeDaemonHome)
+
+	genesis_src := filepath.Join(nodeDir, "config", "genesis.json")
+	genesis_dest := filepath.Join(base_config, "genesis.json")
+	if err := os.MkdirAll(base_config, nodeDirPerm); err != nil {
+		return err
+	}
+
+	bytesRead, err := ioutil.ReadFile(genesis_src)
+
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(genesis_dest, bytesRead, nodeDirPerm)
+	if err != nil {
+		return err
+	}
+
+	genFile = nodeConfig.GenesisFile()
+
+	gentxsDir := filepath.Join(outputDir, "gentxs")
+
+	initCfg := genutiltypes.NewInitConfig(chainID, gentxsDir, "", nil)
+	genDoc, err := types.GenesisDocFromFile(nodeConfig.GenesisFile())
+	if err != nil {
+		return err
+	}
+
+	_, persistentPeers, _ := genutil.CollectTxs(
+		clientCtx.JSONMarshaler, clientCtx.TxConfig.TxJSONDecoder(), "", initCfg.GenTxsDir, *genDoc, genBalIterator,
+	)
+
+	writeFile("persistent.txt", filepath.Join(outputDir, "base_config"), []byte(persistentPeers))
+
+	if err := genutil.ExportGenesisFileWithTime(genFile, chainID, nil, appState, genTime); err != nil {
+		return err
 	}
 
 	return nil

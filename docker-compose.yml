@@ -7,6 +7,7 @@ services:
     ports:
       - "26656-26657:26656-26657"
       - "1317:1317"
+      - "9090:9090"
     environment:
       - ID=0
       - LOG=${LOG:-commercionetwork.log}
@@ -21,6 +22,7 @@ services:
     image: "commercionetwork/commercionetworknode"
     ports:
       - "26659-26660:26656-26657"
+      - "9091:9090"
     environment:
       - ID=1
       - LOG=${LOG:-commercionetwork.log}
@@ -39,6 +41,7 @@ services:
       - LOG=${LOG:-commercionetwork.log}
     ports:
       - "26661-26662:26656-26657"
+      - "9092:9090"
     volumes:
       - ./build:/commercionetwork:Z
     networks:
@@ -53,6 +56,7 @@ services:
       - LOG=${LOG:-commercionetwork.log}
     ports:
       - "26663-26664:26656-26657"
+      - "9093:9090"
     volumes:
       - ./build:/commercionetwork:Z
     networks:
@@ -66,6 +70,7 @@ services:
     ports:
       - "7123:7123"
       - "7124:7124"
+      - "7125:7125"
     volumes:
       - ./build/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:

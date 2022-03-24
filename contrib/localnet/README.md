@@ -21,6 +21,18 @@ To send in backgroud the stack use
 make build-image-libraries-cached localnet-start >/dev/null 2>&1 &
 ```
 
+or 
+
+```bash
+make build-image-libraries-cached localnet-start-demon
+```
+
+You can see logs with
+
+```bash
+docker-compose logs
+```
+
 
 To stop stack use `ctrl + c` or
 
@@ -28,7 +40,7 @@ To stop stack use `ctrl + c` or
 make localnet-stop
 ```
 
-You can reset chain without delete genesis ora accounts with 
+You can reset chain without delete genesis or accounts with 
 
 ```bash
 make localnet-reset
@@ -44,15 +56,15 @@ make clean
 If there are no problems, the nodes listen on the follow ports
 
 ```
-cndnode0   0.0.0.0:26656-26657->26656-26657/tcp                 
-cndnode1   0.0.0.0:26659->26656/tcp, 0.0.0.0:26660->26657/tcp
-cndnode2   0.0.0.0:26661->26656/tcp, 0.0.0.0:26662->26657/tcp   
-cndnode3   0.0.0.0:26663->26656/tcp, 0.0.0.0:26664->26657/tcp
+commercionetworknode0   0.0.0.0:26656-26657->26656-26657/tcp, 0.0.0.0:9090->9090/tcp, 0.0.0.0:1317->1317/tcp              
+commercionetworknode1   0.0.0.0:26659->26656/tcp, 0.0.0.0:26660->26657/tcp, 0.0.0.0:9091->9090/tcp
+commercionetworknode2   0.0.0.0:26661->26656/tcp, 0.0.0.0:26662->26657/tcp, 0.0.0.0:9092->9090/tcp   
+commercionetworknode3   0.0.0.0:26663->26656/tcp, 0.0.0.0:26664->26657/tcp, 0.0.0.0:9093->9090/tcp
 ```
 
-Lcd and Rpc + websocket
+Lcd and Rpc + websocket + Grpc
 ```
-proxy-nginx   0.0.0.0:7123->7123/tcp, 0.0.0.0:7124->7124/tcp 
+proxy-nginx   0.0.0.0:7123->7123/tcp, 0.0.0.0:7124->7124/tcp, 0.0.0.0:7125->7125/tcp  
 ```
 
 ## Lcd local access
@@ -66,6 +78,12 @@ http://localhost:7123
 http://localhost:7124
 ```
 
+## GRpc local access
+```
+http://localhost:7125
+```
+
+
 ## Websocket local access
 ```
 ws://localhost:7124/websocket
@@ -76,7 +94,7 @@ ws://localhost:7124/websocket
 Every node account mnemonics are in 
 
 ```
-/build/node<N>/cncli/key_seed.json
+/build/node<N>/key_seed.json
 ```
 
 where `<N>` is the id of node.  
@@ -86,11 +104,69 @@ Every node configs are under
 
 
 ```
-/build/node<N>/cnd/config
+/build/node<N>/commercionetwork/config
 ```
 
 Logs
 
 ```
-/build/node<N>/cnd/cnd.log
+/build/node<N>/commercionetwork/commercionetwork.log
+```
+
+## Add Node (WIP)
+
+If you want add a new node you can start a new container of `commercionetworknode` with new configuration
+
+### Compile binary
+
+
+```bash
+make build
+```
+
+
+### Create new configuration
+
+
+
+```bash
+./build/commercionetworkd init node4 --home ./build/node4/commercionetwork
+```
+
+### Copy default genesis in config file
+
+```bash
+cp ./build/base_config/genesis.json ./build/node4/commercionetwork/config/
+```
+
+### Setup persistent
+
+```bash
+PERSISTENT=$(cat ./build/base_config/persistent.txt)
+sed -i -e "s/persistent_peers = \".*\"/persistent_peers = \"$PERSISTENT\"/g" ./build/node4/commercionetwork/config/config.toml
+```
+
+### Start docker node
+
+
+
+```bash
+docker run \
+   -v /Users/marco/Sviluppo/Go/commercionetwork/build:/commercionetwork:Z \
+   -e ID=4 \
+   -p 26691-26692:26656-26657 \
+   -p 9191:9090 \
+   --ip 192.168.10.10 \
+   --name node4 \
+   --network commercionetwork_localnet \
+   -d \
+   commercionetwork/commercionetworknode
+```
+
+
+
+You can see logs with
+
+```bash
+docker logs node4 -f
 ```

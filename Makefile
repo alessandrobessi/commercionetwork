@@ -124,7 +124,7 @@ build: go.sum
 test:
 	@go test -mod=readonly $(PACKAGES)
 
-## TODO test unit ledger ecc. ecc.
+## TODO test unit ledger etc. etc.
 
 .PHONY: lint test test_unit go-mod-cache build go.sum go.mod
 
@@ -132,18 +132,19 @@ test:
 ########################################
 ### Docker
 
-#localnet-start: localnet-stop build-local-linux
-#	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cnd:Z commercionetwork/cndnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
-#	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
-#	docker-compose up
-localnet-start: localnet-stop
-	@if ! [ -f build/node0/cnd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
+localnet-setup: localnet-stop
+	@if ! [ -f build/node0/commercionetwork/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/commercionetwork:Z commercionetwork/commercionetworknode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test; fi
 	@if ! [ -f build/nginx/nginx.conf ]; then cp -r contrib/localnet/nginx build/nginx; fi
+
+localnet-start: localnet-setup
 	docker-compose up
-# -e BINARY=/app/build/commercionetworkd
+
+localnet-start-daemon: localnet-setup
+	docker-compose up -d
+
 
 localnet-reset: localnet-stop $(TARGET_BUILD)
-	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/cnd; done
+	@for node in 0 1 2 3; do build/$(TARGET_BIN)/commercionetworkd unsafe-reset-all --home ./build/node$$node/commercionetwork; done
 
 localnet-stop:
 	docker-compose down
@@ -159,4 +160,4 @@ build-image-to-donwload-libraries:
 	docker build -t commercionetwork/commercionetworknode -f contrib/localnet/commercionetworknode/Dockerfile .
 
 
-.PHONY: localnet-start localnet-stop build-docker-cndode clean localnet-reset
+.PHONY: localnet-start localnet-start-daemon localnet-stop build-image-libraries-cached build-image-to-donwload-libraries clean localnet-reset

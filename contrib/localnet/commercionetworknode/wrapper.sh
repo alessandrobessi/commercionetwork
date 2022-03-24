@@ -4,7 +4,7 @@
 ## Input parameters
 ##
 ID=${ID:-0}
-LOG=${LOG:-cnd.log}
+LOG=${LOG:-commercionetwork.log}
 
 ##
 ## Assert linux binary
@@ -24,8 +24,6 @@ fi
 ## Run binary with all parameters
 ##
 export CNDHOME="/commercionetwork/node${ID}/commercionetwork"
-#export CNDHOME="/app/build/node${ID}/cnd"
-#sed -i 's/main:info,state:info,\*:error/info/g' /app/build/node${ID}/cnd/config/config.toml
 
 if [ -d "$(dirname "${CNDHOME}"/"${LOG}")" ]; then
   "/app/build/commercionetworkd" --home "${CNDHOME}" "$@" | tee "${CNDHOME}/${LOG}"
