@@ -3,6 +3,8 @@
 It is possible to test the blockchain and its functionality through the use of a complete docker stack including 4 nodes + endpoints for lcd + rpc with websocket.    
 From root project folder execute the below commands.
 
+**NB**: if you use linux system you need work as root, or add `sudo` to all command.
+
 If it is the first time that you build the docker images:
 ```bash
 make build-image-to-download-libraries localnet-start
